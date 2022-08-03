@@ -79,9 +79,6 @@ internal class AirportControllerTests
         _mockAirportService.Setup(x => x.AirportExists(newAirport.Code))
             .ReturnsAsync(false);
 
-        _mockAirportService.Setup(x => x.AddAirport(newAirport))
-            .ReturnsAsync(newAirport);
-
         // Act
         var actionResult = await _controller.AddAirport(newAirport);
 
@@ -106,9 +103,6 @@ internal class AirportControllerTests
         _mockAirportService.Setup(x => x.AirportExists(newAirport.Code))
             .ReturnsAsync(true);
 
-        _mockAirportService.Setup(x => x.AddAirport(newAirport))
-            .ReturnsAsync(newAirport);
-
         // Act
         var actionResult = await _controller.AddAirport(newAirport);
 
@@ -131,9 +125,6 @@ internal class AirportControllerTests
         _mockAirportService.Setup(x => x.AirportExists(newAirport.Code))
             .ReturnsAsync(true);
 
-        _mockAirportService.Setup(x => x.UpdateAirport(newAirport))
-            .ReturnsAsync(newAirport);
-
         // Act
         var result = await _controller.UpdateAirport(newAirport);
 
@@ -155,9 +146,6 @@ internal class AirportControllerTests
 
         _mockAirportService.Setup(x => x.AirportExists(newAirport.Code))
             .ReturnsAsync(false);
-
-        _mockAirportService.Setup(x => x.UpdateAirport(newAirport))
-            .ReturnsAsync(newAirport);
 
         // Act
         var result = await _controller.UpdateAirport(newAirport);
