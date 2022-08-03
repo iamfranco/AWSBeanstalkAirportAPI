@@ -32,6 +32,39 @@ internal class AirportControllerTests
         result.Value.Should().BeEquivalentTo(GetAllAirports());
     }
 
+    [Test]
+    public async Task GetAirportByCode_Should_Return_Correct_Airport()
+    {
+        // Arrange
+        Airport expectedResult = GetAllAirports().Single(x => x.Code == "LHR");
+
+        _mockAirportService.Setup(x => x.GetByCode("LHR"))
+            .ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await _controller.GetAirportByCode("LHR");
+
+        // Assert
+        result.Should().BeOfType(typeof(ActionResult<Airport>));
+        result.Value.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Test]
+    public async Task GetAirportByCode_With_No_Match_Code_Should_Return_NotFound()
+    {
+        // Arrange
+        Airport? expectedResult = null;
+
+        _mockAirportService.Setup(x => x.GetByCode("ABC"))
+            .ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await _controller.GetAirportByCode("ABC");
+
+        // Assert
+        result.Result.Should().BeOfType(typeof(NotFoundResult));
+    }
+
     private static List<Airport> GetAllAirports()
     {
         return new()

@@ -21,4 +21,14 @@ public class AirportController : ControllerBase
 
         return airports;
     }
+
+    public async Task<ActionResult<Airport>> GetAirportByCode(string code)
+    {
+        Airport? airport = await _airportService.GetByCode(code);
+
+        if (airport is null)
+            return NotFound();
+
+        return airport;
+    }
 }
