@@ -15,6 +15,7 @@ public class AirportController : ControllerBase
         _airportService = airportService;
     }
 
+    [HttpGet]
     public async Task<ActionResult<List<Airport>>> GetAllAirports()
     {
         List<Airport> airports = await _airportService.GetAll();
@@ -22,6 +23,7 @@ public class AirportController : ControllerBase
         return airports;
     }
 
+    [HttpGet("{code}")]
     public async Task<ActionResult<Airport>> GetAirportByCode(string code)
     {
         Airport? airport = await _airportService.GetByCode(code);
