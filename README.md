@@ -4,6 +4,11 @@ This is a C# solution to provide a **RESTful web API** for simple airport inform
 
 ![Cloudcraft Diagram](Diagrams/Cloudcraft3D.png)
 
+| AWS Service Involved | Purpose                                  | Free Tier Limit                                                                                                                                                                                                                                            |
+| -------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DynamoDB             | Store airport information                | Free forever on free tier AWS, as long as storage is under 25GB and read/write requests under 200 million per month                                                                                                                                        |
+| Elastic Beanstalk    | to serve the Web API using EC2 instances | Free **only for first 12 months** on free tier AWS. The EC2 instances that Beanstalk uses are priced at EC2 prices, so recommend using `t2.micro` or `t3.micro` EC2 instances because it is free for first 12 months at under 750 hours of usage per month |
+
 # Instruction / Guide
 
 This guide goes through the process of setting up the AWS services required for this application.
@@ -220,3 +225,75 @@ Next, you can try all the endpoints, they should all work as expected.
 | `DELETE` | `/api/Airport/{code}` | Delete airport with matching airport code to `{code}`                                            |
 
 </details>
+
+<details>
+<summary><span style="font-size:1.2rem">Publish to AWS Elastic Beanstalk</span></summary>
+
+Now that we have tested the endpoints locally, we're ready to publish this web API onto AWS Elastic Beanstalk.
+
+On Solution Explorer, we see the **AirportAPI** project,
+
+![Publish to AWS](Diagrams/screenshots/Beanstalk/Solution_Explorer.png)
+
+right click on the **AirportAPI** project and click **Publish to AWS**
+
+![Publish to AWS](Diagrams/screenshots/Beanstalk/Solution_Explorer_Publish_To_AWS.png)
+
+This opens up the **Publish to AWS: AirportAPI** page, select **ASP.NET Core App to AWS Elastic Beanstalk on Linux** and click the **Edit settings** button
+
+![Publish to AWS](Diagrams/screenshots/Beanstalk/Publish_To_AWS.png)
+
+Most of the default settings are correct, just change 2 things:
+
+1. **Environment Type** to **Load Balancer**, this allows elastic beanstalk to use multiple EC2 instances to serve up the web API, where the EC2 instances will be placed in some **auto scaling group** to scale appropriately to traffic. Elastic beanstalk will use a **Load Balancer** to direct the requests to different EC2 instances.
+2. **EC2 Instance Type** to **t3.micro** because it is within the free tier (for 12 months) and is sufficiently powerful to support our web API.
+
+Then click the **Publish** button to publish onto Elastic Beanstalk.
+![Publish to AWS Settings](Diagrams/screenshots/Beanstalk/Publish_To_AWS_Settings.png)
+
+Then it would take a few minutes to publish the web API onto Elastic Beanstalk. Eventually the process will finish.
+
+![Published to Elastic Beanstalk](Diagrams/screenshots/Beanstalk/Beanstalk_Published.png)
+
+Click on the endpoint will open up the elastic beanstalk hosted website.
+![Elastic Beanstalk Endpoint Home](Diagrams/screenshots/Beanstalk/Endpoint_Home.png)
+
+All seems to be working alright, but actually if we go to the `/api/Airport` endpoint (on browser, so it would be `GET` request), it actually doesn't load (`500 internal server error`)
+![Elastic Beanstalk API Airport Error](Diagrams/screenshots/Beanstalk/Endpoint_API_Airport_Error.png)
+
+This is because the EC2 instances of Elastic Beanstalk don't have the correct permission to access the DynamoDB **airports** table.
+
+We can grant them the permission to access the table by go to the **IAM service** > **Roles**
+![IAM Service Roles](Diagrams/screenshots/Beanstalk/IAM_Roles.png)
+
+We can see one of the latest roles has **Role name** of `AirportAPI-....` and has **Trusted entities** of `AWS Service: ec2`. This is the role used by the EC2 instances of the Elastic Beanstalk that hosts our endpoints.
+![IAM Service Roles EC2](Diagrams/screenshots/Beanstalk/IAM_Roles_EC2.png)
+
+Click it and we see this role only has Permissions Policies relating to Elastic Beanstalk, this is why it doesn't have access to DynamoDB tables.
+We can grant it permission by clicking **Add permissions** > **Attach policies**
+![IAM Service Roles EC2 Permissions](Diagrams/screenshots/Beanstalk/IAM_Roles_EC2_Permissions_Policies.png)
+
+Then search for policies **dynamodb** and tick the **AmazonDynamoDBFullAccess** policy, and click the bottom right button **Attach policies**
+![IAM Service Roles EC2 Permissions Attach](Diagrams/screenshots/Beanstalk/IAM_Roles_EC2_Attach.png)
+
+Now that the new DynamoDB access policy is attached to the EC2 instances of Elastic Beanstalk, wait a few seconds and try the `/api/Airport` again, and we should see that it works.
+![Elastic Beanstalk API Airport Success](Diagrams/screenshots/Beanstalk/Endpoint_API_Airport_Success.png)
+
+You can also go to `/swagger` endpoint to easily test out all the endpoints, they should all work as expected. 🎉
+
+</details>
+
+<details>
+<summary><span style="font-size:1.2rem">Delete Elastic Beanstalk Instance</span></summary>
+
+Now that we've successfully published our local Web API onto Elastic Beanstalk, it is time to turn it off, shut it down, before we forget about it 12 months later and start getting charged for those EC2 instances.
+
+To delete the elastic beanstalk, go to AWS Explorer > AWS Elastic Beanstalk > AirportAPI, right click > **Delete**
+
+![Delete Elastic Beanstalk](Diagrams/screenshots/Beanstalk/Delete_Elastic_Beanstalk.png)
+
+This deletion process would take a few minutes, eventualy we can check on the AWS website > Elastic Beanstalk and see the application for `AirportAPI-dev` deleted.
+
+![Deleted Successful](Diagrams/screenshots/Beanstalk/Deleted_Successful.png)
+
+Feel free to also do the same deletion to the DynamoDB **airports** table, and the IAM roles for Elastic Beanstalk.
