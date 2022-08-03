@@ -113,7 +113,7 @@ internal class AirportControllerTests
         var actionResult = await _controller.AddAirport(newAirport);
 
         // Assert
-        _mockAirportService.Verify(x => x.AirportExists(newAirport.Code), Times.Once());
+        _mockAirportService.Verify(x => x.AddAirport(newAirport), Times.Never());
         actionResult.Result.Should().BeOfType(typeof(ConflictObjectResult));
     }
 
@@ -163,6 +163,7 @@ internal class AirportControllerTests
         var result = await _controller.UpdateAirport(newAirport);
 
         // Assert
+        _mockAirportService.Verify(x => x.UpdateAirport(newAirport), Times.Never());
         result.Should().BeOfType(typeof(NotFoundObjectResult));
     }
 
