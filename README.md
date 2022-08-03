@@ -54,9 +54,11 @@ Going back to the **Users** page, we see that the new user `vsuser` has indeed b
 <summary><span style="font-size:1.2rem">Visual Studio AWS Profile Sign In</span></summary>
 
 Open up Visual Studio, if you have installed the [AWS Toolkit for Visual Studio](https://aws.amazon.com/visualstudio/) correctly, you should see this option in **View** > **AWS Explorer**
+
 ![View AWS Explorer](Diagrams/screenshots/VisualStudio/AWS_Explorer.png)
 
 Click to open **AWS Explorer** and you should see this button (**Add AWS Credentials Profile**), click it.
+
 ![Add AWS Credentials Profile Button](Diagrams/screenshots/VisualStudio/AWS_Explorer_Add_Profile.png)
 
 Then fill in the correct details in the pop up window:
@@ -69,6 +71,7 @@ Then fill in the correct details in the pop up window:
 ![New Account Profile](Diagrams/screenshots/VisualStudio/New_Account_Profile.png)
 
 After that, the profile should be signed in to the AWS Explorer, and all the AWS services would be available through the AWS Explorer in Visual Studio.
+
 ![AWS Explorer After Profile](Diagrams/screenshots/VisualStudio/AWS_Explorer_After_Profile.png)
 
 </details>
