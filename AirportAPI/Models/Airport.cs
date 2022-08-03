@@ -2,6 +2,7 @@
 
 namespace AirportAPI.Models;
 
+[DynamoDBTable("airports")]
 public class Airport
 {
     [DynamoDBHashKey("code")]
