@@ -47,12 +47,24 @@ public class AirportController : ControllerBase
             newAirport);
     }
 
+    [HttpPut]
     public async Task<IActionResult> UpdateAirport(Airport newAirport)
     {
         if (!await _airportService.AirportExists(newAirport.Code))
             return NotFound(new { message = $"Airport with code {newAirport.Code} not found" });
 
         await _airportService.UpdateAirport(newAirport);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{code}")]
+    public async Task<IActionResult> DeleteAirport(string code)
+    {
+        if (!await _airportService.AirportExists(code))
+            return NotFound(new { message = $"Airport with code {code} not found" });
+
+        await _airportService.DeleteAirport(code);
 
         return NoContent();
     }

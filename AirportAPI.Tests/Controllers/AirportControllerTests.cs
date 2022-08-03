@@ -166,6 +166,36 @@ internal class AirportControllerTests
         result.Should().BeOfType(typeof(NotFoundObjectResult));
     }
 
+    [Test]
+    public async Task DeleteAirport_Should_Delete_Airport_And_Return_NoContent()
+    {
+        // Arrange
+        _mockAirportService.Setup(x => x.AirportExists("MAN"))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _controller.DeleteAirport("MAN");
+
+        // Assert
+        _mockAirportService.Verify(x => x.DeleteAirport("MAN"), Times.Once());
+        result.Should().BeOfType(typeof(NoContentResult));
+    }
+
+    [Test]
+    public async Task DeleteAirport_With_No_Airport_Matching_Code_Should_Return_NotFound()
+    {
+        // Arrange
+        _mockAirportService.Setup(x => x.AirportExists("ABC"))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _controller.DeleteAirport("ABC");
+
+        // Assert
+        _mockAirportService.Verify(x => x.DeleteAirport("ABC"), Times.Never());
+        result.Should().BeOfType(typeof(NotFoundObjectResult));
+    }
+
     private static List<Airport> GetAllAirports()
     {
         return new()

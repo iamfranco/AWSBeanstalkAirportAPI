@@ -8,5 +8,6 @@ public interface IAirportService
     Task<Airport?> GetByCode(string code);
     Task<Airport> AddAirport(Airport newAirport);
     Task<Airport> UpdateAirport(Airport newAirport);
+    Task DeleteAirport(string code);
     Task<bool> AirportExists(string? code);
 }
