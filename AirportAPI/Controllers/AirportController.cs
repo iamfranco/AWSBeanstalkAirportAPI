@@ -1,4 +1,5 @@
-﻿using AirportAPI.Services;
+﻿using AirportAPI.Models;
+using AirportAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,5 +13,12 @@ public class AirportController : ControllerBase
     public AirportController(IAirportService airportService)
     {
         _airportService = airportService;
+    }
+
+    public async Task<List<Airport>> GetAllAirports()
+    {
+        List<Airport> airports = await _airportService.GetAll();
+
+        return airports;
     }
 }
