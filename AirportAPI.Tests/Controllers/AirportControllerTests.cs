@@ -62,7 +62,7 @@ internal class AirportControllerTests
         var result = await _controller.GetAirportByCode("ABC");
 
         // Assert
-        result.Result.Should().BeOfType(typeof(NotFoundResult));
+        result.Result.Should().BeOfType(typeof(NotFoundObjectResult));
     }
 
     [Test]
@@ -115,6 +115,55 @@ internal class AirportControllerTests
         // Assert
         _mockAirportService.Verify(x => x.AirportExists(newAirport.Code), Times.Once());
         actionResult.Result.Should().BeOfType(typeof(ConflictObjectResult));
+    }
+
+    [Test]
+    public async Task UpdateAirport_Should_Update_Airport_And_Return_NoContent()
+    {
+        // Arrange
+        Airport newAirport = new()
+        {
+            Code = "MAN",
+            Name = "Manchester Super Airport",
+            City = "Manchester"
+        };
+
+        _mockAirportService.Setup(x => x.AirportExists(newAirport.Code))
+            .ReturnsAsync(true);
+
+        _mockAirportService.Setup(x => x.UpdateAirport(newAirport))
+            .ReturnsAsync(newAirport);
+
+        // Act
+        var result = await _controller.UpdateAirport(newAirport);
+
+        // Assert
+        _mockAirportService.Verify(x => x.UpdateAirport(newAirport), Times.Once());
+        result.Should().BeOfType(typeof(NoContentResult));
+    }
+
+    [Test]
+    public async Task UpdateAirport_With_Airport_Not_Existing_Should_Return_NotFound()
+    {
+        // Arrange
+        Airport newAirport = new()
+        {
+            Code = "ABC",
+            Name = "ABC Airport",
+            City = "Manchester"
+        };
+
+        _mockAirportService.Setup(x => x.AirportExists(newAirport.Code))
+            .ReturnsAsync(false);
+
+        _mockAirportService.Setup(x => x.UpdateAirport(newAirport))
+            .ReturnsAsync(newAirport);
+
+        // Act
+        var result = await _controller.UpdateAirport(newAirport);
+
+        // Assert
+        result.Should().BeOfType(typeof(NotFoundObjectResult));
     }
 
     private static List<Airport> GetAllAirports()

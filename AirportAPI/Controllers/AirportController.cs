@@ -1,6 +1,5 @@
 ﻿using AirportAPI.Models;
 using AirportAPI.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AirportAPI.Controllers;
@@ -29,7 +28,7 @@ public class AirportController : ControllerBase
         Airport? airport = await _airportService.GetByCode(code);
 
         if (airport is null)
-            return NotFound();
+            return NotFound(new { message = $"Airport with code {code} not found" });
 
         return airport;
     }
@@ -46,5 +45,15 @@ public class AirportController : ControllerBase
             nameof(GetAirportByCode),
             new { code = newAirport.Code },
             newAirport);
+    }
+
+    public async Task<IActionResult> UpdateAirport(Airport newAirport)
+    {
+        if (!await _airportService.AirportExists(newAirport.Code))
+            return NotFound(new { message = $"Airport with code {newAirport.Code} not found" });
+
+        await _airportService.UpdateAirport(newAirport);
+
+        return NoContent();
     }
 }
