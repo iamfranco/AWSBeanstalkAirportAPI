@@ -15,7 +15,7 @@ public class AirportController : ControllerBase
         _airportService = airportService;
     }
 
-    public async Task<List<Airport>> GetAllAirports()
+    public async Task<ActionResult<List<Airport>>> GetAllAirports()
     {
         List<Airport> airports = await _airportService.GetAll();
 

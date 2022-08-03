@@ -1,6 +1,7 @@
 ﻿using AirportAPI.Controllers;
 using AirportAPI.Models;
 using AirportAPI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 
 namespace AirportAPI.Tests.Controllers;
@@ -17,17 +18,18 @@ internal class AirportControllerTests
     }
 
     [Test]
-    public async Task GetAllAirports_Should_Return_List_Of_Airports()
+    public async Task GetAllAirports_Should_Return_Status_Ok_With_List_Of_Airports()
     {
         // Arrange
         _mockAirportService.Setup(x => x.GetAll())
             .ReturnsAsync(GetAllAirports());
 
         // Act
-        List<Airport> result = await _controller.GetAllAirports();
+        var result = await _controller.GetAllAirports();
 
         // Assert
-        result.Should().BeEquivalentTo(GetAllAirports());
+        result.Should().BeOfType(typeof(ActionResult<List<Airport>>));
+        result.Value.Should().BeEquivalentTo(GetAllAirports());
     }
 
     private static List<Airport> GetAllAirports()
