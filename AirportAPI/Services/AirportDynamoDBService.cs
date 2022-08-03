@@ -38,7 +38,9 @@ public class AirportDynamoDBService : IAirportService
 
     public async Task DeleteAirport(string code)
     {
-        await _context.DeleteAsync(code);
+        Airport airport = await GetByCode(code);
+
+        await _context.DeleteAsync(airport);
     }
 
     public async Task<bool> AirportExists(string? code)
