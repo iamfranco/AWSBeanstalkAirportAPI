@@ -1,5 +1,5 @@
-﻿using AirportAPI.Services;
-using Microsoft.AspNetCore.Http;
+﻿using AirportAPI.Models;
+using AirportAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AirportAPI.Controllers;
@@ -12,5 +12,60 @@ public class AirportController : ControllerBase
     public AirportController(IAirportService airportService)
     {
         _airportService = airportService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<Airport>>> GetAllAirports()
+    {
+        List<Airport> airports = await _airportService.GetAll();
+
+        return airports;
+    }
+
+    [HttpGet("{code}")]
+    public async Task<ActionResult<Airport>> GetAirportByCode(string code)
+    {
+        Airport? airport = await _airportService.GetByCode(code);
+
+        if (airport is null)
+            return NotFound(new { message = $"Airport with code {code} not found" });
+
+        return airport;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Airport>> AddAirport(Airport newAirport)
+    {
+        if (await _airportService.AirportExists(newAirport.Code))
+            return Conflict(new { message = $"Airport with code {newAirport.Code} already exists" });
+
+        await _airportService.AddAirport(newAirport);
+
+        return CreatedAtAction(
+            nameof(GetAirportByCode),
+            new { code = newAirport.Code },
+            newAirport);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateAirport(Airport newAirport)
+    {
+        if (!await _airportService.AirportExists(newAirport.Code))
+            return NotFound(new { message = $"Airport with code {newAirport.Code} not found" });
+
+        await _airportService.UpdateAirport(newAirport);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{code}")]
+    public async Task<IActionResult> DeleteAirport(string code)
+    {
+        if (!await _airportService.AirportExists(code))
+            return NotFound(new { message = $"Airport with code {code} not found" });
+
+        await _airportService.DeleteAirport(code);
+
+        return NoContent();
     }
 }
