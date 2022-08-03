@@ -33,4 +33,18 @@ public class AirportController : ControllerBase
 
         return airport;
     }
+
+    [HttpPost]
+    public async Task<ActionResult<Airport>> AddAirport(Airport newAirport)
+    {
+        if (await _airportService.AirportExists(newAirport.Code))
+            return Conflict(new { message = $"Airport with code {newAirport.Code} already exists" });
+
+        await _airportService.AddAirport(newAirport);
+
+        return CreatedAtAction(
+            nameof(GetAirportByCode),
+            new { code = newAirport.Code },
+            newAirport);
+    }
 }

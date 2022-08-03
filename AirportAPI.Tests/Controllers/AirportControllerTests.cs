@@ -65,6 +65,58 @@ internal class AirportControllerTests
         result.Result.Should().BeOfType(typeof(NotFoundResult));
     }
 
+    [Test]
+    public async Task AddAirport_Should_Add_Airport_And_Return_No_Content()
+    {
+        // Arrange
+        Airport newAirport = new()
+        {
+            Code = "JFK",
+            Name = "John F. Kennedy International Airport",
+            City = "New York"
+        };
+
+        _mockAirportService.Setup(x => x.AirportExists(newAirport.Code))
+            .ReturnsAsync(false);
+
+        _mockAirportService.Setup(x => x.AddAirport(newAirport))
+            .ReturnsAsync(newAirport);
+
+        // Act
+        var actionResult = await _controller.AddAirport(newAirport);
+
+        // Assert
+        _mockAirportService.Verify(x => x.AddAirport(newAirport), Times.Once());
+        var result = actionResult.Result as CreatedAtActionResult;
+        result.Should().NotBeNull();
+        result!.Value.Should().BeEquivalentTo(newAirport);
+    }
+
+    [Test]
+    public async Task AddAirport_With_Airport_Already_Exist_Should_Return_Conflict()
+    {
+        // Arrange
+        Airport newAirport = new()
+        {
+            Code = "MAN",
+            Name = "Manchester Airport",
+            City = "Manchester"
+        };
+
+        _mockAirportService.Setup(x => x.AirportExists(newAirport.Code))
+            .ReturnsAsync(true);
+
+        _mockAirportService.Setup(x => x.AddAirport(newAirport))
+            .ReturnsAsync(newAirport);
+
+        // Act
+        var actionResult = await _controller.AddAirport(newAirport);
+
+        // Assert
+        _mockAirportService.Verify(x => x.AirportExists(newAirport.Code), Times.Once());
+        actionResult.Result.Should().BeOfType(typeof(ConflictObjectResult));
+    }
+
     private static List<Airport> GetAllAirports()
     {
         return new()
